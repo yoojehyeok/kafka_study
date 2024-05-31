@@ -15,8 +15,8 @@ public class ProducerController {
     private final SimpleProducer simpleProducer;
 
     @PostMapping("/send")
-    public String sendData(@RequestParam String messageValue){
-        simpleProducer.sendData(messageValue);
+    public String sendData(@RequestParam String topicName,@RequestParam String key, @RequestParam String messageValue){
+        simpleProducer.sendData(topicName,key, messageValue);
         return "sendData";
     }
 }

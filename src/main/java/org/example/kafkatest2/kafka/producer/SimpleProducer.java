@@ -15,11 +15,10 @@ import java.util.Properties;
 
 @Component
 public class SimpleProducer {
-    @Value("${kafka.bootstrap}")
+    @Value("${kafka.bootstrap-server}")
     String BOOTSTRAP_SERVERS_CONFIG;
     private final static Logger logger = LoggerFactory.getLogger(SimpleProducer.class);
     static boolean readyFlag = false;
-    private final static String TOPIC_NAME = "test";
 
     private static KafkaProducer<String, String> producer = null;
     public SimpleProducer() {
@@ -42,7 +41,7 @@ public class SimpleProducer {
 
     }
 
-    public void sendData(String messageValue) {
+    public void sendData(String topicName,String key, String messageValue) {
         if(!readyFlag) {
             readyProducer();
         }
@@ -51,13 +50,14 @@ public class SimpleProducer {
             logger.error("messageValue is null or empty");
             return;
         }else{
-            ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC_NAME, "22pangYo2",messageValue);
+            ProducerRecord<String, String> record = new ProducerRecord<>(topicName, key,messageValue);
             RecordMetadata metaData = null;
-
+            logger.info("producer : "+ producer);
+            logger.info(" readyFlag: "+ readyFlag);
             producer.send(record, new ProducerCallback());
 
-            producer.flush();
-            producer.close();
+//            producer.flush();
+//            producer.close();
         }
 
 

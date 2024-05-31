@@ -17,42 +17,41 @@ import java.util.*;
 @Component
 public class SimpleConsumer {
 
-    @Value("${kafka.bootstrap}")
+    @Value("${kafka.bootstrap-server}")
     String BOOTSTRAP_SERVERS_CONFIG;
     private static boolean consumeFlag = false;
     private final static Logger logger = LoggerFactory.getLogger(SimpleConsumer.class);
-    private final static String TopicName = "test";
     private final static String GROUP_ID = "testGroup";
     private static Properties configs = new Properties();
     private static KafkaConsumer<String, String> consumer;
     private static Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
 
     public SimpleConsumer() {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            logger.info("Shutdown Hook is running");
-            consumer.wakeup();
-        }));
+
     }
-    public String consumeStart() {
+    public String consumeStart(String topicName) {
 //        consumer.assign(Collections.singleton((new TopicPartition(TopicName, 0))));
 
         if(consumeFlag) {
             return "Already Consuming";
         }else{
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                logger.info("Shutdown Hook is running");
+                consumer.wakeup();
+            }));
             consumeFlag = true;
-
-
-            configs.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,BOOTSTRAP_SERVERS_CONFIG);
-            configs.put(ConsumerConfig.GROUP_ID_CONFIG, GROUP_ID);
-            configs.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-            configs.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-            consumer = new KafkaConsumer<>(configs);
-
-            consumer.subscribe(Arrays.asList(TopicName), new RebalancerListener());
-
-            consume();
-            return "Consuming Started";
         }
+        configs.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,BOOTSTRAP_SERVERS_CONFIG);
+        configs.put(ConsumerConfig.GROUP_ID_CONFIG, GROUP_ID);
+        configs.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        configs.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        consumer = new KafkaConsumer<>(configs);
+
+        consumer.subscribe(Arrays.asList(topicName), new RebalancerListener());
+
+        consume();
+        return "Consuming Started";
+
     }
 
     public void consume(){
