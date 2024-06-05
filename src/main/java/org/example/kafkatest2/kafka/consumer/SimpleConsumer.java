@@ -1,10 +1,10 @@
 package org.example.kafkatest2.kafka.consumer;
 
-import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.example.kafkatest2.kafka.worker.ConsumerWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 @Component
@@ -26,9 +28,6 @@ public class SimpleConsumer {
     private static KafkaConsumer<String, String> consumer;
     private static Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
 
-    public SimpleConsumer() {
-
-    }
     public String consumeStart(String topicName) {
 //        consumer.assign(Collections.singleton((new TopicPartition(TopicName, 0))));
 
@@ -56,14 +55,16 @@ public class SimpleConsumer {
 
     public void consume(){
         try{
-            while(consumeFlag){
+            ExecutorService excecutorService = Executors.newCachedThreadPool();
+             while(consumeFlag){
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10));
                 for(ConsumerRecord<String, String> record :records){
                     logger.info("{}", record);
+//                    ConsumerWorker consumerWorker = new ConsumerWorker(record.value());
+//                    excecutorService.execute(consumerWorker);
                     currentOffsets.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()+1, null));
                     consumer.commitSync(currentOffsets);
                 }
-
             }
         }catch(WakeupException e) {
             logger.info("Wakeup Exception");

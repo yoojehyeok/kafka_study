@@ -7,7 +7,7 @@ public class ConsumerWorker implements Runnable{
     private final static Logger logger = LoggerFactory.getLogger(ConsumerWorker.class);
     private String recordValue;
 
-    ConsumerWorker(String recordValue){
+    public ConsumerWorker(String recordValue){
         this.recordValue = recordValue;
     }
 
