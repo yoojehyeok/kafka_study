@@ -31,6 +31,8 @@ public class SimpleProducer {
             configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
             configs.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
             configs.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, CustomPartitioner.class.getName());
+
+
             producer = new KafkaProducer<>(configs);
             readyFlag = true;
             return true;

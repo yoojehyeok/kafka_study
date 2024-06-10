@@ -7,13 +7,14 @@ public class ConsumerWorker implements Runnable{
     private final static Logger logger = LoggerFactory.getLogger(ConsumerWorker.class);
     private String recordValue;
 
-    public ConsumerWorker(String recordValue){
+    public ConsumerWorker(String recordValue)
+    {
         this.recordValue = recordValue;
     }
 
     @Override
     public void run() {
-        logger.info("thread: {} ,",Thread.currentThread().getName(),recordValue);
+        logger.info("thread_inner: {} ,",Thread.currentThread().getName(),recordValue);
     }
 
 }

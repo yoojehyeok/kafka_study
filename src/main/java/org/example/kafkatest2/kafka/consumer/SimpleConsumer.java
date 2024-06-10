@@ -55,15 +55,20 @@ public class SimpleConsumer {
 
     public void consume(){
         try{
-            ExecutorService excecutorService = Executors.newCachedThreadPool();
-             while(consumeFlag){
+            ExecutorService executorService = Executors.newCachedThreadPool();
+            logger.info("consume start");
+            while(consumeFlag){
+
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10));
-                for(ConsumerRecord<String, String> record :records){
-                    logger.info("{}", record);
-//                    ConsumerWorker consumerWorker = new ConsumerWorker(record.value());
-//                    excecutorService.execute(consumerWorker);
-                    currentOffsets.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()+1, null));
-                    consumer.commitSync(currentOffsets);
+                 logger.info("thread_poll: {} ,",records.count());
+                 for(ConsumerRecord<String, String> record :records){
+//                    logger.info("{}", record);
+                    logger.info("thread: {} ,",records);
+
+                    ConsumerWorker consumerWorker = new ConsumerWorker(record.value());
+                    executorService.execute(consumerWorker);
+//                    currentOffsets.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()+1, null));
+//                    consumer.commitSync(currentOffsets);
                 }
             }
         }catch(WakeupException e) {
