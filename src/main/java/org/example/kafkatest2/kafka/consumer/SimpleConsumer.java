@@ -27,6 +27,7 @@ public class SimpleConsumer {
     private static Properties configs = new Properties();
     private static KafkaConsumer<String, String> consumer;
     private static Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
+    public static int consumerCount = 3;
 
     public String consumeStart(String topicName) {
 //        consumer.assign(Collections.singleton((new TopicPartition(TopicName, 0))));
@@ -44,32 +45,19 @@ public class SimpleConsumer {
         configs.put(ConsumerConfig.GROUP_ID_CONFIG, GROUP_ID);
         configs.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         configs.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        consumer = new KafkaConsumer<>(configs);
 
-        consumer.subscribe(Arrays.asList(topicName), new RebalancerListener());
-
-        consume();
+        consume(topicName);
         return "Consuming Started";
 
     }
 
-    public void consume(){
+    public void consume(String topicName){
         try{
             ExecutorService executorService = Executors.newCachedThreadPool();
             logger.info("consume start");
-            while(consumeFlag){
-
-                ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10));
-                 logger.info("thread_poll: {} ,",records.count());
-                 for(ConsumerRecord<String, String> record :records){
-//                    logger.info("{}", record);
-                    logger.info("thread: {} ,",records);
-
-                    ConsumerWorker consumerWorker = new ConsumerWorker(record.value());
-                    executorService.execute(consumerWorker);
-//                    currentOffsets.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()+1, null));
-//                    consumer.commitSync(currentOffsets);
-                }
+            for (int i = 0 ; i<consumerCount; i++){
+                ConsumerWorker consumerWorker = new ConsumerWorker(configs, topicName, i);
+                executorService.execute(consumerWorker);
             }
         }catch(WakeupException e) {
             logger.info("Wakeup Exception");
