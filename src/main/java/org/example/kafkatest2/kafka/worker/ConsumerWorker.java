@@ -28,7 +28,8 @@ public class ConsumerWorker implements Runnable{
         consumer = new KafkaConsumer<>(prop);
         consumer.subscribe(Arrays.asList(topic));
         while(true){
-            ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(1));
+            logger.info("running thread : " + threadName);
+            ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10));
             records.forEach(record -> {
                 logger.info("thread_inner: {} , recordValue: {}",Thread.currentThread().getName(),record.value());
             });

@@ -15,8 +15,14 @@ public class ProducerController {
     private final SimpleProducer simpleProducer;
 
     @PostMapping("/send")
-    public String sendData(@RequestParam String topicName,@RequestParam String key, @RequestParam String messageValue){
-        simpleProducer.sendData(topicName,key, messageValue);
+    public String sendData(@RequestParam String topicName, @RequestParam String key, @RequestParam String messageValue) {
+        simpleProducer.sendData(topicName, key, messageValue);
         return "sendData";
+    }
+
+    @PostMapping("/auto-send")
+    public String autoSendData(@RequestParam int requestCount, @RequestParam String topicName,@RequestParam String key, @RequestParam String messageValue){
+        simpleProducer.autoSendData(requestCount, topicName,key, messageValue);
+        return "autoSendData";
     }
 }

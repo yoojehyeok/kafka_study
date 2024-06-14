@@ -55,7 +55,7 @@ public class SimpleConsumer {
         try{
             ExecutorService executorService = Executors.newCachedThreadPool();
             logger.info("consume start");
-            for (int i = 0 ; i<consumerCount; i++){
+            for (int i = 0 ; i < consumerCount; i++){
                 ConsumerWorker consumerWorker = new ConsumerWorker(configs, topicName, i);
                 executorService.execute(consumerWorker);
             }

@@ -57,12 +57,37 @@ public class SimpleProducer {
             logger.info("producer : "+ producer);
             logger.info(" readyFlag: "+ readyFlag);
             producer.send(record, new ProducerCallback());
+        }
+    }
 
-//            producer.flush();
-//            producer.close();
+    public void autoSendData(int requestCount, String topicName,String key, String messageValue) {
+        if(!readyFlag) {
+            readyProducer();
         }
 
+        if(messageValue == null || messageValue.isEmpty()) {
+            logger.error("messageValue is null or empty");
+            return;
+        }else{
+            for(int i = 0 ; i<requestCount; i++){
+                ProducerRecord<String, String> record = new ProducerRecord<>(topicName, key + i,messageValue + i);
+                logger.info("producer : "+ producer);
+                logger.info(" readyFlag: "+ readyFlag);
+                // 1초 주기로 producer에 데이터를 전송한다.
+                try {
+                    Thread.sleep(10);
+                    producer.send(record, new ProducerCallback());
 
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
+
+
+//                producer.send(record, new ProducerCallback());
+            }
+        }
     }
 
 }
