@@ -15,7 +15,13 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    myConfiguration {
+        canBeResolved = true
+    }
+}
 dependencies {
+    myConfiguration 'group:artifact:version'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-web-services'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -25,8 +31,34 @@ dependencies {
     implementation 'org.apache.kafka:kafka-streams:2.5.0'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    compileOnly 'com.google.code.gson:gson:2.8.6'
+    compileOnly 'org.apache.hadoop:hadoop-client:3.3.0'
+    compileOnly 'org.apache.kafka:connect-api:2.5.0'
+    compileOnly 'org.slf4j:slf4j-simple:1.7.30'
+    compileOnly 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.9.2'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+jar{
+    manifest {
+        attributes 'Version': version,
+                    'Main-Class': group + '.ElasticSearchSinkConnector'
+    }
+    from {
+        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+//jar {
+//    manifest {
+//        attributes 'Version': version, 'Main-Class': ElasticSearchSinkConnector
+//    }
+//    from {
+//        configurations.compileClasspath.collect {
+//            it.isDirectory() ? it : zipTree(it)
+//        }
+//    }
+//}

@@ -17,6 +17,11 @@ public class ConsumerController {
         simpleConsumer.consumeStart(topicName);
         return "consumeData";
     }
+    @GetMapping("/hadoop/start")
+    public String toHadoopConsumeData(@RequestParam String topicName){
+        simpleConsumer.hadoopConsumeStart(topicName);
+        return "consumeData";
+    }
 
     @PostMapping("/stop")
     public String stopConsumeData() {

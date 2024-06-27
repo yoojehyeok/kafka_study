@@ -29,6 +29,8 @@ public class SimpleConsumer {
     private static Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
     public static int consumerCount = 3;
 
+    public static List<ConsumerWorker> workers = new ArrayList<>();
+
     public String consumeStart(String topicName) {
 //        consumer.assign(Collections.singleton((new TopicPartition(TopicName, 0))));
 
@@ -62,6 +64,39 @@ public class SimpleConsumer {
         }catch(WakeupException e) {
             logger.info("Wakeup Exception");
             consumer.close();
+        }
+    }
+
+    public void hadoopConsumeStart(String topicName){
+
+        if(consumeFlag) {
+            throw new RuntimeException("Already Consuming");
+        }else{
+            Runtime.getRuntime().addShutdownHook(new ShutdownThread());
+            consumeFlag = true;
+        }
+        configs.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,BOOTSTRAP_SERVERS_CONFIG);
+        configs.put(ConsumerConfig.GROUP_ID_CONFIG, GROUP_ID);
+        configs.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        configs.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+
+        try{
+            ExecutorService executorService = Executors.newCachedThreadPool();
+            logger.info("consume start");
+            for (int i = 0 ; i < consumerCount; i++){
+                workers.add(new ConsumerWorker(configs, topicName, i));
+            }
+            workers.forEach(executorService :: execute);
+        }catch(WakeupException e) {
+            logger.info("Wakeup Exception");
+            consumer.close();
+        }
+    }
+
+    static class ShutdownThread extends Thread {
+        public void run() {
+            logger.info("Shutdown hook");
+            workers.forEach(ConsumerWorker::stopAndWakeup);
         }
     }
 

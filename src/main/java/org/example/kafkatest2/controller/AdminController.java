@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
@@ -26,12 +28,14 @@ public class AdminController {
     @Value("${kafka.bootstrap-server}")
     String bootstrapServer;
     @RequestMapping("/info")
-    public void brokerInfo() {
+    public Map brokerInfo() {
         Properties configs = new Properties();
         configs.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
         AdminClient admin = AdminClient.create(configs);
 
         logger.info("Broker Info: {}", admin.describeCluster());
+        Map<String, String> nodeMap = new HashMap<>();
+
         try {
             for (Node node : admin.describeCluster().nodes().get()) {
                 logger.info("Node Info: {}", node);
@@ -39,6 +43,7 @@ public class AdminController {
                 DescribeConfigsResult describeConfigs = admin.describeConfigs(Collections.singleton(configResource));
                 describeConfigs.all().get().forEach((broker, config) -> {
                     config.entries().forEach((configEntry -> {
+                        nodeMap.put(configEntry.name(), configEntry.value());
                         logger.info(configEntry.name() + " : " + configEntry.value());
                     }));
                 });
@@ -47,6 +52,8 @@ public class AdminController {
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
+        admin.close();
+        return nodeMap;
     }
 
 
