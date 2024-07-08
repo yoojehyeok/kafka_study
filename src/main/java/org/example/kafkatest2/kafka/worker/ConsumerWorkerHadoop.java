@@ -18,8 +18,8 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ConsumerWorker implements Runnable{
-    private final static Logger logger = LoggerFactory.getLogger(ConsumerWorker.class);
+public class ConsumerWorkerHadoop implements Runnable{
+    private final static Logger logger = LoggerFactory.getLogger(ConsumerWorkerHadoop.class);
     private Properties prop;
     private String topic;
     private String threadName;
@@ -27,7 +27,7 @@ public class ConsumerWorker implements Runnable{
     private static Map<Integer, List<String>> bufferString = new ConcurrentHashMap<>();
     private static Map<Integer, Long> currentFileOffset = new ConcurrentHashMap<>();
     private final static int FLUSH_RECORD_COUNT = 10;
-    public ConsumerWorker(Properties prop, String topic, int number)
+    public ConsumerWorkerHadoop(Properties prop, String topic, int number)
     {
         this.prop = prop;
         this.topic = topic;

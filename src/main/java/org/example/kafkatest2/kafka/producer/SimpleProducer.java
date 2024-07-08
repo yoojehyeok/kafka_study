@@ -43,6 +43,7 @@ public class SimpleProducer {
 
     }
 
+
     public void sendData(String topicName,String key, String messageValue) {
         if(!readyFlag) {
             readyProducer();

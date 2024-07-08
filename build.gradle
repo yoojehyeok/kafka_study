@@ -42,15 +42,15 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-jar{
-    manifest {
-        attributes 'Version': version,
-                    'Main-Class': group + '.ElasticSearchSinkConnector'
-    }
-    from {
-        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-}
+//jar{
+//    manifest {
+//        attributes 'Version': version,
+//                    'Main-Class': group + '.ElasticSearchSinkConnector'
+//    }
+//    from {
+//        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+//    }
+//}
 
 //jar {
 //    manifest {

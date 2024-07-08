@@ -4,13 +4,13 @@ import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.example.kafkatest2.kafka.worker.ConsumerWorker;
+import org.example.kafkatest2.kafka.worker.ConsumerWorkerHadoop;
+import org.example.kafkatest2.kafka.worker.ConsumerWorkerSimple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,7 +29,7 @@ public class SimpleConsumer {
     private static Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
     public static int consumerCount = 3;
 
-    public static List<ConsumerWorker> workers = new ArrayList<>();
+    public static List<ConsumerWorkerHadoop> workers = new ArrayList<>();
 
     public String consumeStart(String topicName) {
 //        consumer.assign(Collections.singleton((new TopicPartition(TopicName, 0))));
@@ -58,7 +58,7 @@ public class SimpleConsumer {
             ExecutorService executorService = Executors.newCachedThreadPool();
             logger.info("consume start");
             for (int i = 0 ; i < consumerCount; i++){
-                ConsumerWorker consumerWorker = new ConsumerWorker(configs, topicName, i);
+                ConsumerWorkerSimple consumerWorker = new ConsumerWorkerSimple(configs, topicName, i);
                 executorService.execute(consumerWorker);
             }
         }catch(WakeupException e) {
@@ -84,7 +84,7 @@ public class SimpleConsumer {
             ExecutorService executorService = Executors.newCachedThreadPool();
             logger.info("consume start");
             for (int i = 0 ; i < consumerCount; i++){
-                workers.add(new ConsumerWorker(configs, topicName, i));
+                workers.add(new ConsumerWorkerHadoop(configs, topicName, i));
             }
             workers.forEach(executorService :: execute);
         }catch(WakeupException e) {
@@ -96,7 +96,7 @@ public class SimpleConsumer {
     static class ShutdownThread extends Thread {
         public void run() {
             logger.info("Shutdown hook");
-            workers.forEach(ConsumerWorker::stopAndWakeup);
+            workers.forEach(ConsumerWorkerHadoop::stopAndWakeup);
         }
     }
 
