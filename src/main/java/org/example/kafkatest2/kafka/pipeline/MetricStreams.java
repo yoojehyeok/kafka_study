@@ -4,6 +4,7 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.Predicate;
 import org.eclipse.jetty.util.thread.ShutdownThread;
 
 import java.util.Properties;
@@ -22,16 +23,14 @@ public class MetricStreams {
 
         StreamsBuilder builder = new StreamsBuilder();
         KStream<String, String> metrics = builder.stream("metricAll");
-        metrics.foreach((key, value) -> System.out.println("key1: " + key + ", value1: " + value));
+
         KStream<String, String>[] metricBranch = metrics.branch(
-                (key, value) -> MetricJsonUtils.getMetricName(value).equals("cpu"),
-                (key, value) -> MetricJsonUtils.getMetricName(value).equals("memory")
+                (key, value) -> value.contains("cpu"),
+                (key, value) -> value.contains("memory")
+//                (key, value) -> MetricJsonUtils.getMetricName(value).equals("cpu"),
+//                (key, value) -> MetricJsonUtils.getMetricName(value).equals("memory")
         );
 
-        System.out.println("!!!" + metricBranch[0].toString());
-        System.out.println(metricBranch[0].toString());
-
-        System.out.println("!!!" + metricBranch[1].toString());
 
         metricBranch[0].to("metricCpu");
         metricBranch[1].to("metricMemory");
